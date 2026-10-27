@@ -1,0 +1,34 @@
+# Comprueba que la app y el instalador compilan en cada PR hacia main.
+# El job "build" es el check obligatorio de la protección de la rama main.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Generar MSI y ZIP (x64)
+        shell: pwsh
+        run: ./build-release.ps1 -Platform x64
+
+      # Permite descargar y probar el instalador de cada PR antes de fusionarlo.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ModoWindows-x64
+          path: artifacts/release/*.msi
+          retention-days: 7

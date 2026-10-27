@@ -1,0 +1,60 @@
+# Genera el instalador MSI y el ZIP portable (x64 y ARM64) y los publica en una release de GitHub.
+#
+# Se lanza de dos formas:
+#  - Subiendo una etiqueta de versión:  git tag v1.2.0 && git push origin v1.2.0
+#  - A mano desde Actions > Release > Run workflow, indicando la versión (crea la etiqueta).
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a publicar, sin "v" (p. ej. 1.2.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Obtener versión
+        id: version
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          $version = if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') { $env:INPUT_VERSION } else { $env:TAG_NAME }
+          $version = $version.Trim().TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+([-+][0-9A-Za-z.-]+)?$') {
+            throw "Versión no válida: '$version' (se espera x.y.z)"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Generar MSI y ZIP
+        shell: pwsh
+        run: ./build-release.ps1 -Platform x64, arm64 -Version '${{ steps.version.outputs.version }}'
+
+      - name: Publicar release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $files = (Get-ChildItem artifacts/release -File).FullName
+          $options = @('--title', "Modo Windows $env:VERSION", '--generate-notes', '--target', $env:GITHUB_SHA)
+          # Versiones con sufijo (1.2.0-beta) se marcan como preliminares.
+          if ($env:VERSION -match '-') { $options += '--prerelease' }
+          gh release create "v$env:VERSION" @files @options
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo crear la release' }
