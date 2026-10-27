@@ -62,6 +62,8 @@ public sealed unsafe partial class MainWindow : Window
 
         AlwaysOnTopItem.Text = Strings.AlwaysOnTop;
         AlwaysOnTopItem.IsChecked = _presenter!.IsAlwaysOnTop;
+        StartWithWindowsItem.Text = Strings.StartWithWindows;
+        StartWithWindowsItem.IsChecked = SettingsService.StartWithWindows;
         ExitItem.Text = Strings.Exit;
 
         ApplyTheme(ThemeService.IsLightTheme(), animate: false);
@@ -139,6 +141,9 @@ public sealed unsafe partial class MainWindow : Window
         _presenter!.IsAlwaysOnTop = onTop;
         SettingsService.AlwaysOnTop = onTop;
     }
+
+    private void StartWithWindowsItem_Click(object sender, RoutedEventArgs e) =>
+        SettingsService.StartWithWindows = StartWithWindowsItem.IsChecked;
 
     private void ExitItem_Click(object sender, RoutedEventArgs e) => Close();
 

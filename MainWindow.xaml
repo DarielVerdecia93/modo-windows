@@ -82,6 +82,7 @@
                             <FontIcon Glyph="&#xE718;" />
                         </ToggleMenuFlyoutItem.Icon>
                     </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem x:Name="StartWithWindowsItem" Click="StartWithWindowsItem_Click" />
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem x:Name="ExitItem" Click="ExitItem_Click">
                         <MenuFlyoutItem.Icon>
