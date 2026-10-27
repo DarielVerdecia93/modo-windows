@@ -47,6 +47,11 @@ foreach ($arch in $Platform) {
     dotnet publish $project -c Release -r "win-$arch" --self-contained true -p:Platform=$arch -p:Version=$Version -o $publishDir
     if ($LASTEXITCODE -ne 0) { throw "Falló la publicación para $arch" }
 
+    # Sin el .pri la interfaz XAML no se encuentra y la app se cierra nada más abrirse.
+    if (-not (Test-Path (Join-Path $publishDir 'ModoWindows.pri'))) {
+        throw "La publicación para $arch no incluye ModoWindows.pri (¿falta EnableMsixTooling en el .csproj?)"
+    }
+
     Write-Host "`n[$arch] Creando instalador MSI..." -ForegroundColor Cyan
     dotnet build $installer -c Release -p:Platform=$arch -p:ProductVersion=$msiVersion -p:PublishDir=$publishDir -o $releaseDir
     if ($LASTEXITCODE -ne 0) { throw "Falló el instalador para $arch" }

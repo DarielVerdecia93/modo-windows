@@ -15,6 +15,21 @@
     <Property Id="ARPNOMODIFY" Value="1" />
     <Property Id="ARPNOREPAIR" Value="1" />
 
+    <!-- Icono en Configuración > Aplicaciones -->
+    <Icon Id="AppIcon" SourceFile="..\Assets\AppIcon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <!--
+      Abre la app al terminar de instalar. Va en InstallUISequence para que se ejecute en el
+      proceso del usuario (sin elevar) y solo con interfaz completa (doble clic en el MSI),
+      no en instalaciones silenciosas.
+    -->
+    <SetProperty Id="WixShellExecTarget" Value="[INSTALLFOLDER]ModoWindows.exe" Before="LaunchApp" Sequence="ui" />
+    <CustomAction Id="LaunchApp" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
+    <InstallUISequence>
+      <Custom Action="LaunchApp" After="ExecuteAction" Condition="NOT Installed AND NOT REMOVE" />
+    </InstallUISequence>
+
     <!-- Cierra la burbuja si está abierta al actualizar o desinstalar (evita pedir reinicio). -->
     <util:CloseApplication
         Id="CloseModoWindows"

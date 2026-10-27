@@ -33,7 +33,7 @@ Descargar la última versión desde [Releases](https://github.com/DarielVerdecia
 | `ModoWindows-x.y.z-arm64.msi` | Instalador para equipos ARM (Snapdragon, etc.) |
 | `ModoWindows-x.y.z-<arq>-portable.zip` | Sin instalar: descomprimir y ejecutar `ModoWindows.exe` |
 
-El instalador copia la app en `C:\Program Files\Modo Windows` y crea un acceso directo en el menú Inicio. Pide permisos de administrador. Las versiones nuevas se instalan encima de la anterior y se desinstala desde *Configuración > Aplicaciones*.
+El instalador copia la app en `C:\Program Files\Modo Windows`, crea un acceso directo en el menú Inicio y abre la app al terminar: aparece la burbuja en la esquina inferior derecha de la pantalla. Pide permisos de administrador. Las versiones nuevas se instalan encima de la anterior y se desinstala desde *Configuración > Aplicaciones*.
 
 No hace falta instalar .NET ni Windows App SDK: ambos van incluidos.
 
@@ -113,6 +113,7 @@ Crear un acceso directo a `ModoWindows.exe` en la carpeta de inicio (`Win + R` �
 | `Strings.cs` | Textos de la interfaz en cada idioma |
 | `TransparentBackground.cs` | Fondo transparente de la ventana |
 | `NativeMethods.cs` | Llamadas a la API de Win32 / DWM |
+| `Assets\` | Icono de la app (`AppIcon.ico`) y el script que lo genera |
 | `installer\` | Proyecto WiX del instalador MSI |
 | `build-release.ps1` | Genera el MSI y el ZIP portable |
 | `.github\workflows\` | CI de los PR y publicación de releases |
