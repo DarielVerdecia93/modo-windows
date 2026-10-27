@@ -7,6 +7,7 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
@@ -35,18 +36,38 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          $version = if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') { $env:INPUT_VERSION } else { $env:TAG_NAME }
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $version = $env:INPUT_VERSION
+          } elseif ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $version = $env:TAG_NAME
+          } else {
+            $version = (dotnet msbuild ModoWindows.csproj -getProperty:Version).Trim()
+            if ($LASTEXITCODE -ne 0) { throw 'No se pudo leer la versión de ModoWindows.csproj' }
+          }
           $version = $version.Trim().TrimStart('v')
           if ($version -notmatch '^\d+\.\d+\.\d+([-+][0-9A-Za-z.-]+)?$') {
             throw "Versión no válida: '$version' (se espera x.y.z)"
           }
           "version=$version" >> $env:GITHUB_OUTPUT
 
+      - name: Comprobar si la release ya existe
+        id: release-check
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release view "v$env:VERSION" *> $null
+          $exists = $LASTEXITCODE -eq 0
+          "exists=$($exists.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
       - name: Generar MSI y ZIP
+        if: steps.release-check.outputs.exists != 'true'
         shell: pwsh
         run: ./build-release.ps1 -Platform x64, arm64 -Version '${{ steps.version.outputs.version }}'
 
       - name: Publicar release
+        if: steps.release-check.outputs.exists != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
