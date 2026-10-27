@@ -1,0 +1,38 @@
+# Salida de compilación
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+[Pp]ublish/
+*.binlog
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.rsuser
+*.DotSettings.user
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Paquetes MSIX
+AppPackages/
+BundleArtifacts/
+*.msix
+*.msixbundle
+*.appx
+
+# Archivos temporales (capturas de prueba, etc.)
+.tmp/
+*.tmp
+*.log
+Thumbs.db
+Desktop.ini
