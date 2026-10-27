@@ -4,6 +4,7 @@ obj/
 [Dd]ebug/
 [Rr]elease/
 [Pp]ublish/
+artifacts/
 *.binlog
 
 # Visual Studio / Rider / VS Code

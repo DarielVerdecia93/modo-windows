@@ -1,0 +1,49 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <!-- El UpgradeCode no debe cambiar nunca: es lo que permite actualizar versiones anteriores. -->
+  <Package
+      Name="Modo Windows"
+      Manufacturer="Modo Windows"
+      Version="$(ProductVersion)"
+      UpgradeCode="853F4C7C-FA5B-4ABB-BBBA-C6369763985D"
+      Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="Ya hay instalada una versión más reciente de Modo Windows." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPNOREPAIR" Value="1" />
+
+    <!-- Cierra la burbuja si está abierta al actualizar o desinstalar (evita pedir reinicio). -->
+    <util:CloseApplication
+        Id="CloseModoWindows"
+        Target="ModoWindows.exe"
+        CloseMessage="yes"
+        ElevatedCloseMessage="yes"
+        TerminateProcess="0"
+        RebootPrompt="no" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Modo Windows" />
+    </StandardDirectory>
+
+    <Feature Id="Main">
+      <!-- Toda la app publicada (incluye el runtime de .NET y de Windows App SDK) -->
+      <Files Directory="INSTALLFOLDER" Include="$(PublishDir)\**" />
+
+      <!-- Acceso directo en el menú Inicio -->
+      <Component Id="StartMenuShortcut" Directory="ProgramMenuFolder">
+        <Shortcut
+            Id="ModoWindowsShortcut"
+            Name="Modo Windows"
+            Description="Cambia entre el modo claro y el modo oscuro de Windows"
+            Target="[INSTALLFOLDER]ModoWindows.exe"
+            WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\ModoWindows" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+        <!-- Al desinstalar se borran también las preferencias -->
+        <RemoveRegistryKey Root="HKCU" Key="Software\ModoWindows" Action="removeOnUninstall" />
+      </Component>
+    </Feature>
+  </Package>
+</Wix>

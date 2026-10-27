@@ -1,0 +1,25 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+
+  <!--
+    Instalador MSI de Modo Windows. Lo normal es generarlo con build-release.ps1,
+    que publica la app y le pasa PublishDir y ProductVersion.
+  -->
+  <PropertyGroup>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <!-- x64 o arm64. Cada plataforma usa su propia carpeta obj\<plataforma>. -->
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\artifacts\publish\win-$(Platform)</PublishDir>
+    <OutputName>ModoWindows-$(ProductVersion)-$(Platform)</OutputName>
+    <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
+    <!--
+      ICE03: algunas DLL de Windows App SDK declaran en su información de versión listas de
+      idiomas que no caben en la columna Language del MSI. No afecta a la instalación.
+    -->
+    <SuppressIces>ICE03</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2" />
+  </ItemGroup>
+
+</Project>

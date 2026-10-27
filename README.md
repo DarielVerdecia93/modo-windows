@@ -23,12 +23,24 @@ Es una pequeña burbuja circular, transparente y arrastrable, que se queda en un
 | Arrastrar | Mueve la burbuja |
 | Clic derecho | Menú con **Superponer a las ventanas** y **Salir** |
 
+## Instalación
+
+Descargar la última versión desde [Releases](https://github.com/DarielVerdecia93/modo-windows/releases/latest):
+
+| Archivo | Uso |
+| --- | --- |
+| `ModoWindows-x.y.z-x64.msi` | Instalador para equipos Intel/AMD (el habitual) |
+| `ModoWindows-x.y.z-arm64.msi` | Instalador para equipos ARM (Snapdragon, etc.) |
+| `ModoWindows-x.y.z-<arq>-portable.zip` | Sin instalar: descomprimir y ejecutar `ModoWindows.exe` |
+
+El instalador copia la app en `C:\Program Files\Modo Windows` y crea un acceso directo en el menú Inicio. Pide permisos de administrador. Las versiones nuevas se instalan encima de la anterior y se desinstala desde *Configuración > Aplicaciones*.
+
+No hace falta instalar .NET ni Windows App SDK: ambos van incluidos.
+
 ## Requisitos
 
 - Windows 10 versión 2004 (compilación 19041) o posterior, o Windows 11.
 - Para compilar: [SDK de .NET 10](https://dotnet.microsoft.com/download).
-
-El ejecutable incluye el runtime de Windows App SDK (`WindowsAppSDKSelfContained`), así que no hace falta instalarlo aparte.
 
 ## Compilar y ejecutar
 
@@ -46,15 +58,38 @@ dotnet build -c Release -p:Platform=x64
 
 El ejecutable queda en `bin\x64\Release\net10.0-windows10.0.26100.0\win-x64\ModoWindows.exe`.
 
-### Publicar una versión independiente
-
-Para generar una carpeta que se pueda copiar a otro equipo sin instalar .NET:
+### Generar el instalador
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -p:Platform=x64
+.\build-release.ps1                              # x64, versión de ModoWindows.csproj
+.\build-release.ps1 -Platform x64, arm64 -Version 1.2.0
 ```
 
-Cambiar `win-x64` por `win-arm64` o `win-x86` según la arquitectura.
+Deja en `artifacts\release` el instalador MSI y el ZIP portable de cada arquitectura. El instalador se crea con [WiX Toolset](https://wixtoolset.org/) (`installer\`), que se descarga como paquete NuGet al compilar: no hace falta instalar nada.
+
+## Publicar una versión
+
+Las versiones las genera GitHub Actions ([release.yml](.github/workflows/release.yml)). Basta con subir una etiqueta:
+
+```powershell
+git checkout main
+git pull
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+También se puede lanzar desde *Actions > Release > Run workflow* indicando la versión. El workflow compila x64 y ARM64, crea la release con las notas generadas a partir de los PR y adjunta los MSI y ZIP. Una versión con sufijo (`v1.2.0-beta`) se publica como preliminar.
+
+## Contribuir
+
+La rama `main` está protegida: los cambios entran solo mediante pull request y el check **build** ([ci.yml](.github/workflows/ci.yml)) tiene que pasar. Cada PR deja el MSI como artefacto del workflow para poder probarlo antes de fusionar.
+
+```powershell
+git checkout -b mi-cambio
+# ...cambios...
+git push -u origin mi-cambio
+gh pr create --base main
+```
 
 ### Iniciar con Windows
 
@@ -78,6 +113,9 @@ Crear un acceso directo a `ModoWindows.exe` en la carpeta de inicio (`Win + R` �
 | `Strings.cs` | Textos de la interfaz en cada idioma |
 | `TransparentBackground.cs` | Fondo transparente de la ventana |
 | `NativeMethods.cs` | Llamadas a la API de Win32 / DWM |
+| `installer\` | Proyecto WiX del instalador MSI |
+| `build-release.ps1` | Genera el MSI y el ZIP portable |
+| `.github\workflows\` | CI de los PR y publicación de releases |
 
 ### Añadir un idioma
 

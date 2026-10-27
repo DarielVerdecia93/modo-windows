@@ -14,6 +14,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
+    <!-- Versión de la app y del instalador (build-release.ps1 la lee de aquí) -->
+    <Version>1.0.0</Version>
+    <Product>Modo Windows</Product>
+    <Description>Cambia entre el modo claro y el modo oscuro de Windows</Description>
+
+    <!-- El instalador y las versiones generadas no forman parte de la app -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);installer\**;artifacts\**</DefaultItemExcludes>
+
     <!-- WinUI 3 sin empaquetar (exe normal) y con el runtime de Windows App SDK incluido -->
     <UseWinUI>true</UseWinUI>
     <WindowsPackageType>None</WindowsPackageType>
